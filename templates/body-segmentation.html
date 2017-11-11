@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h4>Body segmentation</h4>
+    <br/>
+    <canvas id="imageCanvas"></canvas>
+    <br/>
+    <input type="file" id="imageLoader" name="imageLoader"/>
+    <br/>
+    <br/>
+    <input id="apiKey" placeholder="F++ key">
+    <input id="apiSecret" placeholder="F++ secret">
+    <input id="theButton" type="button" value="Click Me" onclick="detect()">
+    <script type="text/javascript">
+        var apiKey = document.getElementById("apiKey");
+        var apiSecret = document.getElementById("apiSecret");
+        var imageLoader = document.getElementById("imageLoader");
+        imageLoader.addEventListener("change", handleImage, false);
+        var canvas = document.getElementById("imageCanvas");
+        var ctx = canvas.getContext("2d");
+
+        function handleImage(e) {
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                var img = new Image();
+                img.onload = function () {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                }
+                img.src = event.target.result;
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        }
+        function detect() {
+            image_data = { image: canvas.toDataURL("image/jpeg"), method: "segmentation", fpp_key: apiKey.value, fpp_secret: apiSecret.value };
+
+            $.ajax({
+                type: "POST",
+                url: "/activate-function",
+                contentType: "application/json",
+                data: JSON.stringify(image_data)
+            }).done(function (response) {
+                var canvas = document.getElementById("imageCanvas");
+                var ctx = canvas.getContext("2d");
+                
+                var image = new Image();
+                image.onload = function() {
+                    ctx.drawImage(image, 0, 0);
+                };
+                image.src = response;
+            });
+        }
+    </script>
+{% endblock %}

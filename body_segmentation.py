@@ -5,24 +5,25 @@ import util
 import simplejson
 
 
-def draw_face_rects(image, api_key, api_secret):
+def get_segmented_image(image, api_key, api_secret, use_base64=False):
     # Connect to F++-api and provide key, secret and image file
-    fpp_detect_url = "https://api-us.faceplusplus.com/facepp/v3/detect?api_key={k}&api_secret={s}"
-    r = requests.post(fpp_detect_url.format(k=api_key, s=api_secret), files={"image_file": open(image_path, "rb")})
+    fpp_segment_url = "https://api-us.faceplusplus.com/humanbodypp/beta/segment?api_key={k}&api_secret={s}"
+    if use_base64:
+        r = requests.post(fpp_segment_url.format(k=api_key, s=api_secret), data={"image_base64": image})
+    else:
+        files = {"image_file": open(image_path, "rb")}
+        r = requests.post(fpp_segment_url.format(k=api_key, s=api_secret), files=files)
 
     # Load the result into a JSON-dictionary
     json = simplejson.loads(r.text)
 
     # If the JSON only has one key then it failed
-    if len(json) is 1:
+    if "error_message" in json:
         # Print error message and quit
         print("Error: " + json["error_message"])
         exit(1)
 
-    for face in json["faces"]:
-        image = util.draw_rect_copy(image, face["face_rectangle"])
-
-    return image
+    return json["result"]
 
 
 if __name__ == "__main__":
@@ -44,4 +45,6 @@ if __name__ == "__main__":
     # Load image
     input_image = cv2.imread(image_path)
 
-    util.show_image("Detect faces: Face++", draw_face_rects(input_image, fpp_key, fpp_secret))
+    segmented_image = util.base64_to_image(get_segmented_image(input_image, fpp_key, fpp_secret))
+
+    util.show_image("Body segmentation: F++", segmented_image)

@@ -14,34 +14,41 @@ def shape_to_coordinates(shape):
     return coordinates
 
 
-# Define input arguments for the script
-parser = argparse.ArgumentParser()
-parser.add_argument("-i", "--image_path", type=str, help="Path to image file")
-parser.add_argument("-p", "--shape_predictor", type=str, help="Path to 'shape_predictor_68_face_landmarks.dat' file")
+def draw_facial_landmarks(image, p_path):
+    drawn_image = image
 
-# Parse the arguments
-args = parser.parse_args()
-image_path = args.image_path
-predictor_path = args.shape_predictor
+    # Load the dlib detector and predictor
+    detector = dlib.get_frontal_face_detector()
+    predictor = dlib.shape_predictor(p_path)
 
-# Validate the input arguments and quit if invalid
-util.quit_if_file_arg_is_invalid(image_path, "Must provide a valid image file")
-util.quit_if_file_arg_is_invalid(predictor_path, "Must provide a valid 'shape_predictor_68_face_landmarks.dat' file")
+    # Detect face with dlib
+    detections = detector(image, 1)
+    for d in detections:
+        # Predict landmark coordinates with dlib
+        s = predictor(image, d)
 
-# Load image
-image = cv2.imread(image_path)
+        # Draw a dot for every point found
+        drawn_image = util.draw_points_copy(drawn_image, shape_to_coordinates(s))
 
-# Load the dlib detector and predictor
-detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor(predictor_path)
+    return drawn_image
 
-# Detect face with dlib
-detections = detector(image, 1)
-for d in detections:
-    # Predict landmark coordinates with dlib
-    s = predictor(image, d)
 
-    # Draw a dot for every point found
-    image = util.draw_points_copy(image, shape_to_coordinates(s))
+if __name__ == "__main__":
+    # Define input arguments for the script
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-i", "--image_path", type=str, help="Path to image file")
+    parser.add_argument("-p", "--shape_predictor", type=str, help="Path to 'shape_predictor_68_face_landmarks.dat' file")
 
-util.show_image("Facial landmarks: dlib", image)
+    # Parse the arguments
+    args = parser.parse_args()
+    image_path = args.image_path
+    predictor_path = args.shape_predictor
+
+    # Validate the input arguments and quit if invalid
+    util.quit_if_file_arg_is_invalid(image_path, "Must provide a valid image file")
+    util.quit_if_file_arg_is_invalid(predictor_path, "Must provide a valid 'shape_predictor_68_face_landmarks.dat' file")
+
+    # Load image
+    input_image = cv2.imread(image_path)
+
+    util.show_image("Facial landmarks: dlib", draw_facial_landmarks(input_image, predictor_path))

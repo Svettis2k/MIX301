@@ -1,6 +1,9 @@
 import cv2
 import numpy as np
 import os
+import io
+import base64
+from PIL import Image
 
 
 COLOR = (50, 0, 255)
@@ -84,3 +87,34 @@ def combine_2_images(image1, image2):
     combined[0: height2, width1:new_width] = image2
 
     return combined
+
+
+def strip_base64_prefix(base64_str):
+    if base64_str.find(",") > 0:
+        split = base64_str.split(",")
+
+        return split[0], split[1]
+
+    return _, base64_str
+
+
+def base64_to_image(base64_str):
+    image_data = base64.b64decode(base64_str)
+    rgb_image = Image.open(io.BytesIO(image_data))
+
+    return np.array(rgb_image)
+
+
+def image_to_base64(image):
+    _, buffer = cv2.imencode(".jpg", image)
+    base64_str = base64.b64encode(buffer).decode("utf8")
+
+    return base64_str
+
+
+def append_base64_prefix(base64_prefix, base64_str):
+    if base64_prefix is not None:
+        base64_str = base64_prefix + "," + base64_str
+
+    return base64_str
+
