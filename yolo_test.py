@@ -1,6 +1,7 @@
 import argparse
 import util
 import subprocess
+import simplejson
 
 
 def execute_process(cmd, cwd):
@@ -26,6 +27,7 @@ darknet_path = args.darknet_path
 
 util.quit_if_file_arg_is_invalid(darknet_path, "Must provide a valid path to 'darknet\\x64' folder")
 
+# First index contains the executable, the following are arguments
 command = \
     [darknet_path + "/darknet.exe", "detector", "demo",
      darknet_path + "/data/voc.data",
@@ -34,6 +36,12 @@ command = \
      "-c", "0"]
 
 for path in execute_process(command, darknet_path):
+    # Segment the detection
     start = path.find("{")
     end = path.find("}")
-    print(path[start:end + 1])
+    detection = path[start:end + 1]
+
+    # Print any detection found
+    if len(detection) > 0:
+        json = simplejson.loads(detection)
+        print(simplejson.dumps(json))
