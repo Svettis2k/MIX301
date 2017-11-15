@@ -11,7 +11,8 @@ def get_segmented_image(image, api_key, api_secret, use_base64=False):
     if use_base64:
         r = requests.post(fpp_segment_url.format(k=api_key, s=api_secret), data={"image_base64": image})
     else:
-        files = {"image_file": open(image_path, "rb")}
+        util.quit_if_file_arg_is_invalid(image, "Must provide a valid image file (-i)")
+        files = {"image_file": open(image, "rb")}
         r = requests.post(fpp_segment_url.format(k=api_key, s=api_secret), files=files)
 
     # Load the result into a JSON-dictionary
@@ -42,9 +43,6 @@ if __name__ == "__main__":
     # Validate the input arguments and quit if invalid
     util.quit_if_file_arg_is_invalid(image_path, "Must provide a valid image file")
 
-    # Load image
-    input_image = cv2.imread(image_path)
-
-    segmented_image = util.base64_to_image(get_segmented_image(input_image, fpp_key, fpp_secret))
+    segmented_image = util.base64_to_image(get_segmented_image(image_path, fpp_key, fpp_secret))
 
     util.show_image("Body segmentation: F++", segmented_image)
