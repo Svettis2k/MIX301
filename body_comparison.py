@@ -58,7 +58,9 @@ if __name__ == "__main__":
 
     # Load images
     input_image1 = cv2.imread(image_path1)
+    util.show_image("1", input_image1)
     input_image2 = cv2.imread(image_path2)
+    util.show_image("2", input_image2)
 
     h1, w1 = input_image1.shape[:2]
     h2, w2 = input_image2.shape[:2]
@@ -95,6 +97,14 @@ if __name__ == "__main__":
         [left2, top2 + height2]
     ], dtype=np.float32)
     print(dst)
+
+    inim1 = util.draw_contours_copy(input_image1, [contour1], (255, 0, 0))
+
+    util.show_image("Contours", inim1)
+
+    inim2 = util.draw_contours_copy(input_image2, [contour2], (255, 0, 0))
+
+    util.show_image("Contours", inim2)
 
     cnt_canvas = util.draw_contours_copy(cnt_canvas, [contour1])
     M = cv2.estimateRigidTransform(src, dst, True)
