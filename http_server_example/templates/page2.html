@@ -6,9 +6,6 @@
   <body>
     <div>Options:
         <a href="{{ url_for('detect_faces') }}">Detect Faces</a>
-        <a href="{{ url_for('facial_landmarks') }}">Facial Landmarks</a>
-        <a href="{{ url_for('body_segmentation') }}">Body Segmentation</a>
-        <a href="{{ url_for('pitch_detection') }}">Pitch Detection</a>
     </div>
     <hr>
     {% block content %}{% endblock %}

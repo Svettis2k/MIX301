@@ -1,0 +1,14 @@
+<html>
+    <head>
+        <title>Python Flask server</title>
+        <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    </head>
+
+    <body bgcolor=white>
+        <img src="static/flask.png">
+        <p>This is the home page for the Web application. </p>
+        <ul>
+            <li>Go to <a href="{{ url_for('pitch_detection') }}">page 2</a>.
+        </ul>
+    </body>
+</html>
