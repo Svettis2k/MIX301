@@ -1,20 +1,21 @@
-{% extends "base.html" %}
+<html>
+  <head>
+        <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  </head>
 
-{% block content %}
-    <h4>Facial Landmarks</h4>
-    <br/>
+  <body>
     <canvas id="imageCanvas"></canvas>
     <br/>
     <input type="file" id="imageLoader" name="imageLoader"/>
     <br/>
     <br/>
-    <input id="theButton" type="button" value="Click Me" onclick="landmarks()">
+    <input type="button" value="Detect shape" onclick="detect()">
     <script type="text/javascript">
-        var imageLoader = document.getElementById('imageLoader');
-        imageLoader.addEventListener('change', handleImage, false);
-        var canvas = document.getElementById('imageCanvas');
-        var ctx = canvas.getContext('2d');
-
+        var imageLoader = document.getElementById("imageLoader");
+        imageLoader.addEventListener("change", handleImage, false);
+        var canvas = document.getElementById("imageCanvas");
+        var ctx = canvas.getContext("2d");
         function handleImage(e) {
             var reader = new FileReader();
             reader.onload = function (event) {
@@ -28,21 +29,18 @@
             }
             reader.readAsDataURL(e.target.files[0]);
         }
-        function landmarks() {
-            image_data = { image: canvas.toDataURL("image/jpeg"), method: "landmarks" };
-
+        function detect() {
+            image_data = { image: canvas.toDataURL("image/jpeg"), method: "detect" };
             $.ajax({
                 type: "POST",
-                url: "/activate-function",
+                url: "/detect-shape",
                 contentType: "application/json",
                 data: JSON.stringify(image_data)
             }).done(function (response) {
-                var image = new Image();
-                image.onload = function() {
-                    ctx.drawImage(image, 0, 0);
-                };
-                image.src = response;
+                var edges = response;
+                console.log(response);
             });
         }
     </script>
-{% endblock %}
+  </body>
+</html>
